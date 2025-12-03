@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using Sandbox.ModelEditor.Nodes;
+using System.Threading;
 
 namespace Editor;
 
@@ -55,6 +56,21 @@ partial class ModelDropObject : BaseDropObject
 		}
 	}
 
+	private bool HasPropData()
+	{
+		if ( archetype == "physics_prop_model" || archetype == "jointed_physics_model" || archetype == "breakable_prop_model" )
+			return true;
+		if ( model.Data.Explosive )
+			return true;
+		if ( model.Data.Flammable )
+			return true;
+		if ( model.Data.Health > 0 )
+			return true;
+		if ( model.HasData<ModelBreakPiece[]>() )
+			return true;
+		return false;
+	}
+
 	public override async Task OnDrop()
 	{
 		await WaitForLoad();
@@ -70,12 +86,12 @@ partial class ModelDropObject : BaseDropObject
 			GameObject.Name = model.ResourceName;
 			GameObject.WorldTransform = traceTransform;
 
-			bool isProp = (model.Physics?.Parts.Count ?? 0) > 0;
-			if ( isProp )
+			bool physics = (model.Physics?.Parts.Count ?? 0) > 0;
+			if ( physics && HasPropData() )
 			{
 				var prop = GameObject.Components.Create<Prop>();
 				prop.Model = model;
-				prop.IsStatic = archetype == "static_prop_model";
+				prop.IsStatic = archetype == "" || archetype == "default" || archetype == "static_prop_model" || archetype == "animated_model";
 			}
 			else if ( model.BoneCount > 0 )
 			{
@@ -86,6 +102,11 @@ partial class ModelDropObject : BaseDropObject
 			{
 				var renderer = GameObject.Components.Create<ModelRenderer>();
 				renderer.Model = model;
+				if ( physics )
+				{
+					var collider = GameObject.Components.Create<ModelCollider>();
+					collider.Model = model;
+				}
 			}
 
 			GameObject.Enabled = true;
