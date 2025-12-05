@@ -110,6 +110,7 @@ partial class ModelDropObject : BaseDropObject
 				if ( (model.Physics?.Parts.Count ?? 0) > 0 )
 				{
 					var collider = GameObject.Components.Create<ModelCollider>();
+					collider.Static = true;
 					collider.Model = model;
 				}
 			}
