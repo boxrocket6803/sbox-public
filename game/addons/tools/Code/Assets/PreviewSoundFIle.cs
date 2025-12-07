@@ -37,7 +37,7 @@ class PreviewSoundFile : AssetPreview
 			icon.SetFill( Theme.Blue );
 			if ( value )
 				icon.DrawRoundRect( new( 0, 64 ), 8f );
-			icon.DrawText( new ( "slideshow", Theme.Text, 56, "Material Icons" ), new( 0, 64 ), TextFlag.Center | TextFlag.DontClip );
+			icon.DrawText( new( "slideshow", Theme.Text, 56, "Material Icons" ), new( 0, 64 ), TextFlag.Center | TextFlag.DontClip );
 			autoPlay.SetIcon( Pixmap.FromBitmap( icon ) );
 		};
 		autoPlay.Checkable = true;

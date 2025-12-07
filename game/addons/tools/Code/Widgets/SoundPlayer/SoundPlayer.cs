@@ -47,7 +47,7 @@ public partial class SoundPlayer : Widget
 			icon.SetFill( Theme.Blue );
 			if ( value )
 				icon.DrawRoundRect( new( 0, 64 ), 8f );
-			icon.DrawText( new ( "repeat", Theme.Text, 64, "Material Icons" ), new( 0, 64 ), TextFlag.Center | TextFlag.DontClip );
+			icon.DrawText( new( "repeat", Theme.Text, 64, "Material Icons" ), new( 0, 64 ), TextFlag.Center | TextFlag.DontClip );
 			loop.SetIcon( Pixmap.FromBitmap( icon ) );
 		};
 		loop.Bind( "Checked" ).From( this, nameof( Repeating ) );
