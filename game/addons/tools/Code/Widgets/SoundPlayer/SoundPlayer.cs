@@ -41,8 +41,18 @@ public partial class SoundPlayer : Widget
 		var skipStart = ToolBar.AddOption( "Skip to Start", "skip_previous", () => Timeline.MoveScrubber( 0 ) );
 		ToolBar.AddSeparator();
 		var loop = ToolBar.AddOption( "Loop", "repeat" );
+		loop.Toggled = ( value ) =>
+		{
+			var icon = new Bitmap( 64, 64 );
+			icon.SetFill( Theme.Blue );
+			if ( value )
+				icon.DrawRoundRect( new( 0, 64 ), 8f );
+			icon.DrawText( new ( "repeat", Theme.Text, 64, "Material Icons" ), new( 0, 64 ), TextFlag.Center | TextFlag.DontClip );
+			loop.SetIcon( Pixmap.FromBitmap( icon ) );
+		};
 		loop.Bind( "Checked" ).From( this, nameof( Repeating ) );
 		loop.Checkable = true;
+		loop.Toggled.Invoke( Repeating );
 
 		Timeline = Layout.Add( new TimelineView( this ), 1 );
 	}
