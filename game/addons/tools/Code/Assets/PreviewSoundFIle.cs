@@ -30,19 +30,14 @@ class PreviewSoundFile : AssetPreview
 			previewWidget.Play();
 		}
 
-		var autoPlay = previewWidget.ToolBar.AddOption( "Auto-Play", "slideshow" );
-		autoPlay.Toggled = ( value ) =>
+		previewWidget.ToolBar.AddWidget( new IconButton( "slideshow" )
 		{
-			var icon = new Bitmap( 64, 64 );
-			icon.SetFill( Theme.Blue );
-			if ( value )
-				icon.DrawRoundRect( new( 0, 64 ), 8f );
-			icon.DrawText( new( "slideshow", Theme.Text, 56, "Material Icons" ), new( 0, 64 ), TextFlag.Center | TextFlag.DontClip );
-			autoPlay.SetIcon( Pixmap.FromBitmap( icon ) );
-		};
-		autoPlay.Checkable = true;
-		autoPlay.Bind( "Checked" ).From( this, nameof( AutoPlay ) );
-		autoPlay.Toggled.Invoke( AutoPlay );
+			ToolTip = "Auto-Play",
+			IconSize = 18,
+			IsToggle = true,
+			IsActive = AutoPlay,
+			OnToggled = ( value ) => AutoPlay = value
+		} );
 
 		return previewWidget;
 	}
