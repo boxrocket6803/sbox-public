@@ -152,7 +152,8 @@ public partial class SoundPlayer : Widget
 
 			var size = Size;
 			size.x = MathF.Max( Size.x, PositionFromTime( Duration ) );
-			SceneRect = new( 0, size - ( Width - ContentRect.Width ) );
+			size.x -= Width - ContentRect.Width;
+			SceneRect = new( 0, size );
 			TimeAxis.Size = new Vector2( size.x, Theme.RowHeight );
 			Scrubber.Size = new Vector2( 9, size.y );
 
@@ -234,13 +235,14 @@ public partial class SoundPlayer : Widget
 				SoundHandle.Paused = Scrubbing;
 			}
 
-			TimeAxis.Update();
-			WaveForm.Update();
-
 			if ( Scrubbing || Timeline.Playing )
 			{
 				CenterOn( Scrubber.Position );
+				VisibleRect = Rect.FromPoints( ToScene( LocalRect.TopLeft ), ToScene( LocalRect.BottomRight ) );
 			}
+
+			TimeAxis.Update();
+			WaveForm.Update();
 		}
 
 		public float PositionFromTime( float time )
