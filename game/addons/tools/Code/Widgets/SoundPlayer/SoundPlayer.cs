@@ -235,6 +235,7 @@ public partial class SoundPlayer : Widget
 
 			if ( Scrubbing || Timeline.Playing )
 			{
+				Translate( 1 );
 				CenterOn( Scrubber.Position );
 			}
 

@@ -41,6 +41,7 @@ public partial class SoundPlayer
 		protected override void OnMouseReleased( GraphicsMouseEvent e )
 		{
 			base.OnMouseReleased( e );
+			TimelineView.MoveScrubber( Position.x + 4 );
 			TimelineView.Scrubbing = false;
 		}
 
@@ -49,7 +50,7 @@ public partial class SoundPlayer
 			base.OnMoved();
 
 			TimelineView.Scrubbing = true;
-			TimelineView.MoveScrubber( Position.x, false );
+			TimelineView.MoveScrubber( Position.x + 4, false );
 		}
 	}
 
