@@ -264,7 +264,7 @@ public partial class SoundPlayer : Widget
 
 		public void MoveScrubber( float position, bool centreOn = true )
 		{
-			Scrubber.Position = Vector2.Right * position.SnapToGrid( 1.0f ).Clamp( 0, SceneRect.Width + 4 );
+			Scrubber.Position = Vector2.Right * position.Clamp( 0, SceneRect.Width + 4 ).SnapToGrid( 1.0f );
 			Time = TimeFromPosition( Scrubber.Position.x );
 
 			if ( SoundHandle.IsValid() )

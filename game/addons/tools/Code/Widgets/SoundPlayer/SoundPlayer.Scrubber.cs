@@ -51,7 +51,7 @@ public partial class SoundPlayer
 			base.OnMoved();
 
 			TimelineView.Scrubbing = true;
-			TimelineView.MoveScrubber( Position.x, false );
+			TimelineView.MoveScrubber( Position.x + 0.5f, false );
 		}
 	}
 
