@@ -163,7 +163,7 @@ public partial class SoundPlayer : Widget
 			WaveForm.SceneRect = r;
 			WaveForm.Analyse();
 
-			Scrubber.Position = Scrubber.Position.WithX( PositionFromTime( Time ) - 4 ).SnapToGrid( 1.0f );
+			Scrubber.Position = Scrubber.Position.WithX( PositionFromTime( Time ) ).SnapToGrid( 1.0f );
 		}
 
 		protected override void OnResize()
@@ -223,7 +223,7 @@ public partial class SoundPlayer : Widget
 					SoundHandle.DistanceAttenuation = false;
 				}
 
-				Scrubber.Position = Scrubber.Position.WithX( PositionFromTime( Time ) - 4 ).SnapToGrid( 1.0f );
+				Scrubber.Position = Scrubber.Position.WithX( PositionFromTime( Time ) ).SnapToGrid( 1.0f );
 				if ( Timeline.Playing )
 					Time += RealTime.SmoothDelta;
 			}
@@ -264,8 +264,8 @@ public partial class SoundPlayer : Widget
 
 		public void MoveScrubber( float position, bool centreOn = true )
 		{
-			Scrubber.Position = Vector2.Right * (position - 4).SnapToGrid( 1.0f ).Clamp( -4, SceneRect.Width );
-			Time = TimeFromPosition( Scrubber.Position.x + 4 );
+			Scrubber.Position = Vector2.Right * position.SnapToGrid( 1.0f ).Clamp( 0, SceneRect.Width + 4 );
+			Time = TimeFromPosition( Scrubber.Position.x );
 
 			if ( SoundHandle.IsValid() )
 			{
@@ -287,6 +287,8 @@ public partial class SoundPlayer : Widget
 			ZoomLevel = ZoomLevel.Clamp( 1.0f, 20.0f );
 
 			DoLayout();
+
+			VisibleRect = Rect.FromPoints( ToScene( LocalRect.TopLeft ), ToScene( LocalRect.BottomRight ) );
 
 			TimeAxis.Update();
 			WaveForm.Update();
