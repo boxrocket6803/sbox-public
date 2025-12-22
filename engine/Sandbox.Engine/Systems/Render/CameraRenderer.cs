@@ -76,14 +76,26 @@ internal ref struct CameraRenderer
 		Native.ClearRenderTags();
 		Native.ClearExcludeTags();
 
-		foreach ( var tag in camera.RenderTags.TryGetAll() )
+		if ( config.RenderTags is not null )
 		{
-			Native.AddRenderTag( StringToken.FindOrCreate( tag ) );
+			foreach ( var tag in config.RenderTags )
+				Native.AddRenderTag( StringToken.FindOrCreate( tag ) );
+		}
+		else
+		{
+			foreach ( var tag in camera.RenderTags.TryGetAll() )
+				Native.AddRenderTag( StringToken.FindOrCreate( tag ) );
 		}
 
-		foreach ( var tag in camera.ExcludeTags.TryGetAll() )
+		if ( config.RenderExcludeTags is not null )
 		{
-			Native.AddExcludeTag( StringToken.FindOrCreate( tag ) );
+			foreach ( var tag in config.RenderExcludeTags )
+				Native.AddExcludeTag( StringToken.FindOrCreate( tag ) );
+		}
+		else
+		{
+			foreach ( var tag in camera.ExcludeTags.TryGetAll() )
+				Native.AddExcludeTag( StringToken.FindOrCreate( tag ) );
 		}
 
 		Native.ViewUniqueId = HashCode.Combine( cameraId, config.ViewHash );

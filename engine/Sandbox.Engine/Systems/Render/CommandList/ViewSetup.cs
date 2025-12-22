@@ -53,6 +53,16 @@ public struct ViewSetup
 	public Color? AmbientLightAdd;
 
 	/// <summary>
+	/// Overrides the camera's render tags
+	/// </summary>
+	public IEnumerable<string> RenderTags;
+
+	/// <summary>
+	/// Overrides the camera's render exclude tags
+	/// </summary>
+	public IEnumerable<string> RenderExcludeTags;
+
+	/// <summary>
 	/// Clipspace is usually used for rendering posters, or center-offsetting the view. You're basically zooming
 	/// into a subrect of the clipspace. So imagine you draw a smaller rect inside the first rect of the frustum.. 
 	/// that's what you're gonna render - that rect.
