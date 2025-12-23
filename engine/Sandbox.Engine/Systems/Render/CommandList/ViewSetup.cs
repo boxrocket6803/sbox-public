@@ -33,6 +33,11 @@ public struct ViewSetup
 	public Color? ClearColor;
 
 	/// <summary>
+	/// Applies additional attributes to the camera
+	/// </summary>
+	public RenderAttributes Attributes;
+
+	/// <summary>
 	/// Overrides the camera's projection matrix
 	/// </summary>
 	public Matrix? ProjectionMatrix;

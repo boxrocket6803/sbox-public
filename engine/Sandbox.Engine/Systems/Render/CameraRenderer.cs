@@ -27,6 +27,7 @@ internal ref struct CameraRenderer
 		var Attributes = new RenderAttributes();
 
 		camera.Attributes.MergeTo( Attributes );
+		config.Attributes?.MergeTo( Attributes );
 
 		if ( _world.IsValid() && !Graphics.IsActive )
 		{
