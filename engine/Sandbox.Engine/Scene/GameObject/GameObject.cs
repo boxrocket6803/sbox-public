@@ -598,61 +598,7 @@ public partial class GameObject : IJsonConvert, IComponentLister, BytePack.ISeri
 		_humanReadableId = result;
 	}
 
-	public void MakeNameUnique()
-	{
-		if ( Parent is null ) return;
-		// If we are not in editor let's not do this if we have a lot of siblings as it becomes fairly expensive
-		if ( Parent.Children.Count > 100 && !Scene.IsEditor ) return;
-
-		// Extract base name first
-		string baseName = Name;
-		int parenIndex = baseName.LastIndexOf( '(' );
-		if ( parenIndex > 0 && baseName.EndsWith( ')' ) )
-		{
-			baseName = baseName.Substring( 0, parenIndex ).TrimEnd();
-		}
-
-		// Single pass through siblings to check for duplicates and find highest number
-		int highestNumber = 0;
-		bool foundDuplicate = false;
-
-		foreach ( var sibling in Parent.Children )
-		{
-			if ( sibling == this ) continue;
-
-			// Check if sibling name starts with our base name
-			if ( sibling.Name.StartsWith( baseName, StringComparison.Ordinal ) )
-			{
-				if ( sibling.Name.StartsWith( $"{baseName} (" ) && sibling.Name[^1] == ')' )
-				{
-					// Sibling has the same base name and a number in parentheses
-					int siblingNumber = sibling._humanReadableId;
-					if ( siblingNumber == _humanReadableId )
-					{
-						foundDuplicate = true;
-					}
-					if ( siblingNumber > highestNumber )
-					{
-						highestNumber = siblingNumber;
-					}
-				}
-				else if ( sibling.Name == baseName )
-				{
-					// Exact match without parentheses
-					foundDuplicate = true;
-				}
-			}
-		}
-
-		if ( !foundDuplicate )
-		{
-			// No duplicates found, keep original name
-			return;
-		}
-
-		// Create new name with next available number
-		Name = $"{baseName} ({highestNumber + 1})";
-	}
+	public void MakeNameUnique() { }
 
 	[ActionGraphInclude, Pure]
 	public IEnumerable<GameObject> GetAllObjects( bool enabled )
