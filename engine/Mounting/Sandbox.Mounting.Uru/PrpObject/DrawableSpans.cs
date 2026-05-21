@@ -81,9 +81,11 @@ public class DrawableSpans : PrpObject {
 
 		public BufferGroup(int weights, int uvs) {
 			FloatDecoders = new VertexFloatDecoder[(6 + weights) + (3 * uvs)];
-			Array.Fill(FloatDecoders, new());
+			for (var i = 0; i < FloatDecoders.Length; i++)
+				FloatDecoders[i] = new();
 			ColorDecoders = new VertexColorDecoder[4];
-			Array.Fill(ColorDecoders, new());
+			for (var i = 0; i < ColorDecoders.Length; i++)
+				ColorDecoders[i] = new();
 		}
 	}
 
@@ -198,11 +200,8 @@ public class DrawableSpans : PrpObject {
 						span.FloatDecoders[fldec++].Read(r, 1024),
 						span.FloatDecoders[fldec++].Read(r, 1024)
 					);
-					Log.Info(vertex.Position);
-					//TODO skinning
-					if (skinWeights > 0)
-						throw new("need to implement skinned meshes");
-					/*
+					Log.Info($"position {vertex.Position}");
+					//weights
 					vertex.Weights = new float[skinWeights];
 					for (var l = 0; l < vertex.Weights.Length; l++)
 						vertex.Weights[l] = span.FloatDecoders[fldec++].Read(r, 32768);
@@ -211,14 +210,13 @@ public class DrawableSpans : PrpObject {
 						for (var l = 0; l < 4; l++)
 							vertex.Bones[l] = r.ReadInt32();
 					}
-					*/
 					//normal
 					vertex.Normal = new(
 						r.ReadInt16() / 32767f,
 						r.ReadInt16() / 32767f,
 						r.ReadInt16() / 32767f
 					);
-					vertex.Normal = vertex.Normal.Normal;
+					Log.Info($"normal {vertex.Normal}");
 					//color
 					vertex.Color = new(
 						span.ColorDecoders[0].Read(r),
@@ -226,6 +224,7 @@ public class DrawableSpans : PrpObject {
 						span.ColorDecoders[2].Read(r),
 						span.ColorDecoders[3].Read(r)
 					);
+					Log.Info($"color {vertex.Color}");
 					//uv
 					vertex.TexCoords = new Vector3[uvwCount];
 					for (var l = 0; l < vertex.TexCoords.Length; l++) {
@@ -235,6 +234,8 @@ public class DrawableSpans : PrpObject {
 							span.FloatDecoders[fldec++].Read(r, 65536)
 						);
 					}
+					for (var l = 0; l < vertex.TexCoords.Length; l++)
+						Log.Info($"texcoords: {vertex.TexCoords[l]}");
 					mesh.Vertices[k] = vertex;
 				}
 				span.FloatDecoders = null;
@@ -248,11 +249,12 @@ public class DrawableSpans : PrpObject {
 				var surface = new BufferGroup.Surface();
 				surface.Faces = new Vector3[r.ReadInt32() / 3];
 				for (var k = 0; k < surface.Faces.Length; k++)
-					surface.Faces[k] = r.ReadInt16();
+					surface.Faces[k] = new(r.ReadInt16(), r.ReadInt16(), r.ReadInt16());
 				span.Surfaces[j] = surface;
 			}
 			//cells
 			span.Cells = new BufferGroup.CellGroup[span.Meshes.Length];
+			Log.Info($"cells {span.Surfaces.Length}");
 			for (var j = 0; j < span.Cells.Length; j++) {
 				var cellgroup = new BufferGroup.CellGroup();
 				cellgroup.Cells = new BufferGroup.CellGroup.Cell[r.ReadInt32()];
