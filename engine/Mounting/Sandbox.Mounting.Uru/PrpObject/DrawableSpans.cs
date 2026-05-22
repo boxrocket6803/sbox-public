@@ -1,6 +1,4 @@
-﻿using static Sandbox.VertexLayout;
-
-namespace Prp;
+﻿namespace Prp;
 
 [PrpType(TypeIndex.DrawableSpans)]
 public class DrawableSpans : PrpObject {
@@ -43,8 +41,13 @@ public class DrawableSpans : PrpObject {
 		public int Flags {get; set;}
 		public Transform WorldTransform {get; set;}
 
-		public int BufferIndex {get; set;}
-		public int StartIndex {get; set;}
+		public int GroupIndex {get; set;}
+
+		public int VertexStart {get; set;}
+		public int VertexCount {get; set;}
+
+		public int IndexBuffer {get; set;}
+		public int IndexStart {get; set;}
 		public int IndexCount {get; set;}
 	}
 	public struct IndexBuffer {
@@ -55,15 +58,17 @@ public class DrawableSpans : PrpObject {
 			public Vector3 Position {get; set;}
 			public Vector3 Normal {get; set;}
 			public Color Color {get; set;}
-			public Vector3[] TexCoords {get; set;}
+			public Vector3[] TexCoords {get; set;} //TODO can be vector2
 			public float[] Weights {get; set;}
 			public int[] Bones {get; set;} //absolute bone index
+
+			public readonly Vector2 TexCoord(int i) => i >= TexCoords.Length ? Vector2.Zero : TexCoords[i];
 		}
 		public struct SubMesh {
 			public Vertex[] Vertices {get; set;}
 		}
 		public struct Surface {
-			public Vector3[] Faces {get; set;} 
+			public int[] Indices {get; set;} 
 		}
 		public struct CellGroup {
 			public struct Cell {
@@ -78,8 +83,10 @@ public class DrawableSpans : PrpObject {
 		public SubMesh[] Meshes {get; set;}
 		public Surface[] Surfaces {get; set;}
 		public CellGroup[] Cells {get; set;}
+		public List<Vertex> Vertices {get; set;}
 
 		public BufferGroup(int weights, int uvs) {
+			Vertices = [];
 			FloatDecoders = new VertexFloatDecoder[(6 + weights) + (3 * uvs)];
 			for (var i = 0; i < FloatDecoders.Length; i++)
 				FloatDecoders[i] = new();
@@ -96,6 +103,17 @@ public class DrawableSpans : PrpObject {
 	public MeshSpan[] Meshes {get; set;} = [];
 	public IndexBuffer[] Indices {get; set;} = [];
 	public BufferGroup[] Buffers {get; set;} = [];
+	private static Dictionary<DrawableSpans, string> ModelPaths {get; set;} = [];
+
+	public void Register(string ident, string path) {
+		path = path.Replace( '\\', '/' ).Trim( '/' );
+		path = $"mount://{ident}/{path}.vmdl";
+		ModelPaths.Add(this, path);
+	}
+	public Model GetVmdl() {
+		Log.Info(ModelPaths[this]);
+		return Model.Load(ModelPaths[this]);
+	}
 
 	protected override void LoadObject(DatReader r) {
 		Log.Info($"load {Type} {Name}");
@@ -121,25 +139,28 @@ public class DrawableSpans : PrpObject {
 			if ((span.Flags & 0x10) != 0)
 				r.Position += 4; //water height
 			//vertex span
-			r.Position += 4; //group index
+			span.GroupIndex = r.ReadInt32(); //group index
 			r.Position += 8; //unused?
 			r.Position += 4; //cell offset
-			r.Position += 4; //vertex start index
-			r.Position += 4; //vertex length
+			span.VertexStart = r.ReadInt32();
+			span.VertexCount = r.ReadInt32();
 			//icicle
-			r.Position += 4; //buffer index
-			r.Position += 4; //start index
-			r.Position += 4; //index count
+			span.IndexBuffer = r.ReadInt32();
+			span.IndexStart = r.ReadInt32();
+			span.IndexCount = r.ReadInt32();
 			if ((span.Flags & 0x4) != 0)
 				throw new("unexpected flag"); //more data to read here if this is ever hit
 			Meshes[i] = span;
 		}
 		r.Position += 8; //unused, span count
+		//span index, spans are in the right order already though
 		for (var i = 0; i < Meshes.Length; i++)
-			r.Position += 4; //span index, spans are in the right order already though
+			r.Position += 4;
+		//atmospherics
 		Fog = new PrpObject[Meshes.Length];
 		for (var i = 0; i < Fog.Length; i++)
 			Fog[i] = ResolveReference(r); //TODO these are probably all the same?
+		//bounds (not useful)
 		if (Meshes.Length > 0) {
 			r.SkipBBox(); //local bounds
 			r.SkipBBox(); //world bounds
@@ -177,6 +198,7 @@ public class DrawableSpans : PrpObject {
 			span.Indices = new int[r.ReadInt32()];
 			for (var j = 0; j < span.Indices.Length; j++)
 				span.Indices[j] = r.ReadInt32();
+			Indices[i] = span;
 		}
 		Buffers = new BufferGroup[r.ReadInt32()];
 		for (var i = 0; i < Buffers.Length; i++) {
@@ -188,7 +210,6 @@ public class DrawableSpans : PrpObject {
 			r.Position += 4; //unused
 			span.Meshes = new BufferGroup.SubMesh[r.ReadInt32()];
 			for (var j = 0; j < span.Meshes.Length; j++) {
-				Log.Info("start mesh");
 				var mesh = new BufferGroup.SubMesh();
 				mesh.Vertices = new BufferGroup.Vertex[r.ReadInt16()];
 				for (var k = 0; k < mesh.Vertices.Length; k++) {
@@ -200,7 +221,6 @@ public class DrawableSpans : PrpObject {
 						span.FloatDecoders[fldec++].Read(r, 1024),
 						span.FloatDecoders[fldec++].Read(r, 1024)
 					);
-					Log.Info($"position {vertex.Position}");
 					//weights
 					vertex.Weights = new float[skinWeights];
 					for (var l = 0; l < vertex.Weights.Length; l++)
@@ -216,7 +236,6 @@ public class DrawableSpans : PrpObject {
 						r.ReadInt16() / 32767f,
 						r.ReadInt16() / 32767f
 					);
-					Log.Info($"normal {vertex.Normal}");
 					//color
 					vertex.Color = new(
 						span.ColorDecoders[0].Read(r),
@@ -224,7 +243,6 @@ public class DrawableSpans : PrpObject {
 						span.ColorDecoders[2].Read(r),
 						span.ColorDecoders[3].Read(r)
 					);
-					Log.Info($"color {vertex.Color}");
 					//uv
 					vertex.TexCoords = new Vector3[uvwCount];
 					for (var l = 0; l < vertex.TexCoords.Length; l++) {
@@ -234,8 +252,7 @@ public class DrawableSpans : PrpObject {
 							span.FloatDecoders[fldec++].Read(r, 65536)
 						);
 					}
-					for (var l = 0; l < vertex.TexCoords.Length; l++)
-						Log.Info($"texcoords: {vertex.TexCoords[l]}");
+					span.Vertices.Add(vertex);
 					mesh.Vertices[k] = vertex;
 				}
 				span.FloatDecoders = null;
@@ -247,9 +264,9 @@ public class DrawableSpans : PrpObject {
 			Log.Info($"surfaces {span.Surfaces.Length}");
 			for (var j = 0; j < span.Surfaces.Length; j++) {
 				var surface = new BufferGroup.Surface();
-				surface.Faces = new Vector3[r.ReadInt32() / 3];
-				for (var k = 0; k < surface.Faces.Length; k++)
-					surface.Faces[k] = new(r.ReadInt16(), r.ReadInt16(), r.ReadInt16());
+				surface.Indices = new int[r.ReadInt32()];
+				for (var k = 0; k < surface.Indices.Length; k++)
+					surface.Indices[k] = r.ReadInt16();
 				span.Surfaces[j] = surface;
 			}
 			//cells

@@ -189,15 +189,19 @@ public class PrpObject {
 	}
 
 	private bool FinishedLoad;
-	public void FinishLoad(DatReader r) {
+	private static string ReadingFile {get; set;}
+	private static DatReader Reader {get; set;}
+	public void FinishLoad() {
 		if (FinishedLoad)
 			return;
-		r.Position = Offset;
+		if (File != ReadingFile)
+			Reader = new DatReader(System.IO.File.OpenRead(File));
+		Reader.Position = Offset;
 		//we know all this already, skip it
-		r.Position += 2; //type
-		ReadHeader(r); //header again
+		Reader.Position += 2; //type
+		ReadHeader(Reader); //header again
 		//into object data now
-		LoadObject(r);
+		LoadObject(Reader);
 		FinishedLoad = true;
 	}
 	protected virtual void LoadObject(DatReader r) { }

@@ -19,4 +19,9 @@ public class DrawInterface : PrpObject {
 		for (var i = 0; i < visregions; i++)
 			ResolveReference(r); //needn't worry about vis stuff
 	}
+
+	public override void Spawn() {
+		foreach (var span in Drawable)
+			Parent.GameObject.Components.Create<ModelRenderer>().Model = span.GetVmdl();
+	}
 }

@@ -30,7 +30,7 @@ public partial class UruMount : BaseGameMount {
 				case ".sdl":
 				case ".fni":
 					try {
-						PrpFile.Classify(context, file, rel);
+						PrpFile.Register(context, Ident, file, rel);
 					} catch (Exception e) {Log.Error(e);}
 					break;
 			}

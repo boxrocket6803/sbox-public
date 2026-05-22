@@ -1,7 +1,15 @@
 ﻿public static class PrpFile {
-	public static void Classify(MountContext context, string path, string destination) {
+	public static void Register(MountContext context, string ident, string path, string destination) {
 		using var r = new DatReader(File.OpenRead(path));
 		var objects = ReadObjects(path, r);
+		var folder = destination.Split('.')[0];
+		foreach (var obj in objects) {
+			var subassetpath = Path.Join(folder, obj.Name);
+			if (obj is Prp.DrawableSpans spans) {
+				context.Add(ResourceType.Model, subassetpath, new ModelLoader(spans));
+				spans.Register(ident, subassetpath);
+			}
+		}
 		if (objects.Any((o) => o.Type == PrpObject.TypeIndex.SceneObject))
 			context.Add(ResourceType.PrefabFile, destination, new SceneLoader(path, objects));
 	}
