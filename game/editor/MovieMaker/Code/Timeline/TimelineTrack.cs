@@ -33,7 +33,6 @@ public partial class TimelineTrack : GraphicsItem
 		View = view;
 
 		HoverEvents = true;
-		ToolTip = view.Description;
 
 		HandleColor = HandleColors.TryGetValue( view.Track.TargetType, out var color ) ? color : Color.Gray;
 
