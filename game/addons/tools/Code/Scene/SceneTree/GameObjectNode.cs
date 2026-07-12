@@ -587,6 +587,18 @@ partial class GameObjectNode : TreeNode<GameObject>
 		m.AddOption( "Paste As Child", null, EditorScene.PasteAsChild, "editor.paste-as-child" ).Enabled = isObjectMenu;
 		m.AddOption( "Paste Special", "content_paste_go", EditorScene.PasteSpecial, "editor.paste-special" );
 		m.AddOption( "Create Group", "file_copy", SceneEditorMenus.Group, "editor.group" ).Enabled = isObjectMenu && !isPrefabRoot;
+
+		if ( gameObject.IsValid() && gameObject.Flags.HasFlag( GameObjectFlags.Bone ) )
+		{
+			m.AddSeparator();
+			m.AddOption( "Add IK Constraint", "share", () =>
+			{
+				GameObject[] affected = [gameObject, gameObject.Parent, gameObject.Parent.Parent];
+				using ( SceneEditorSession.Active.UndoScope( "Add IK Constraint" ).WithGameObjectChanges( affected, GameObjectUndoFlags.Properties ).WithGameObjectCreations().Push() )
+					EditorScene.Selection.Set(IKConstraint.CreateForTarget( gameObject ));
+			} ).Enabled = IKConstraint.IsTargetValid( gameObject );
+		}
+
 		m.AddSeparator();
 		m.AddOption( "Rename", "label", treeNode.TreeView.BeginRename, "editor.rename" ).Enabled = isObjectMenu;
 		m.AddOption( "Duplicate", "file_copy", SceneEditorMenus.Duplicate, "editor.duplicate" ).Enabled = isObjectMenu && !isPrefabRoot;
