@@ -55,7 +55,6 @@ internal partial class GameInstanceDll : Engine.IGameInstanceDll
 			if ( Application.IsStandalone )
 			{
 				// In standalone, we don't ship code - only assets
-				FileSystem.Mounted.CreateAndMount( EngineFileSystem.Addons, $"/base/Assets" );
 				FileSystem.Mounted.CreateAndMount( EngineFileSystem.Root, "/core/" );
 			}
 			else
@@ -709,6 +708,11 @@ internal partial class GameInstanceDll : Engine.IGameInstanceDll
 				GlobalContext.Current.FileOrg.CreateDirectory( package );
 
 				GlobalContext.Current.FileData = FileSystem.OrganizationData.CreateSubSystem( package );
+			}
+			else if ( Application.IsStandalone )
+			{
+				GlobalContext.Current.FileOrg = EngineFileSystem.Data;
+				GlobalContext.Current.FileData = EngineFileSystem.Data;
 			}
 			else
 			{

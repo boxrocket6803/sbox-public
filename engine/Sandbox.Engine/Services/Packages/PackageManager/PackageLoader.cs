@@ -396,6 +396,7 @@ internal sealed partial class PackageLoader : IDisposable
 			//
 			// Hack Sadface: If this is a local game then include the base as a dependency
 			//
+			if ( !Application.IsStandalone )
 			{
 				bool needsToolsPackage = packageLocal.TypeName == "tool";
 

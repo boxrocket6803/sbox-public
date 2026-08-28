@@ -167,7 +167,7 @@ internal static partial class PackageManager
 			}
 		}
 
-		if ( package is LocalPackage packageLocal )
+		if ( !Application.IsStandalone && package is LocalPackage packageLocal )
 		{
 			//
 			// Hack Sadface: If this is a local game then include the base as a dependency

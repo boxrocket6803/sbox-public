@@ -33,6 +33,34 @@ partial class StandaloneExporter
 		return files.Where( x => x.EndsWith( ".dll" ) );
 	}
 
+	private static string[] BaseWhitelist = [
+		// Default fonts
+		"fonts/*.ttf",
+
+		// Core materials
+		"materials/core/*.vmat_c",
+		"materials/default/*.vmat_c",
+		"materials/default/*.vtex_c",
+		"materials/postprocess/*.vmat_c",
+
+		// Shaders
+		"shaders/*.shader_c",
+		"shaders/**/*.shader_c",
+		"postprocess/ObjectHighlight/objecthighlight.shader_c",
+
+		// Surfaces
+		"surfaces/*.surface_c",
+
+		// Common textures
+		"textures/**/*.vtex_c",
+		"ui/**/*.svg",
+	];
+
+	private IEnumerable<string> GetBaseFiles( string engineDir )
+	{
+		return GetWhitelistedFiles( BaseWhitelist, Path.Combine( engineDir, "addons", "base", "assets" ) );
+	}
+
 	private static string[] CoreWhitelist = [
 		// Error particle
 		"particles/error/error.vtex_c",

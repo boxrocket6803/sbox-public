@@ -68,7 +68,6 @@ internal static class EngineFileSystem
 			CoreContent.CreateAndMount( Root, "/core/" );
 
 			Assets.CreateAndMount( Root, "/core/" );
-			Assets.CreateAndMount( Root, "/addons/base/Assets" );
 		}
 		else
 		{
