@@ -43,7 +43,7 @@ public partial class StandaloneExporter
 	private void QueueCopyFile( string targetDir, ProjectFile file, BuildStep type )
 	{
 		var fileName = file.Name;
-		var targetPath = Path.Combine( targetDir, fileName );
+		var targetPath = Path.Combine( targetDir, fileName.ToLowerInvariant() );
 
 		//
 		// Create directory if it doesn't exist
@@ -168,15 +168,32 @@ public partial class StandaloneExporter
 
 	private void QueueAddonFiles( string baseDir, BuildStep type )
 	{
-		var targetDir = Path.Combine( baseDir, Standalone.GamePath );
-		Directory.CreateDirectory( targetDir );
+		var assetsDir = Path.Combine( baseDir, Standalone.GamePath );
+		var coreDir = Path.Combine( baseDir, "core" );
+		Directory.CreateDirectory( coreDir );
+		Directory.CreateDirectory( assetsDir );
+		var addonDir = Path.Combine( Environment.CurrentDirectory, "addons", "base" );
+		var oCoreDir = Path.Combine( Environment.CurrentDirectory, "core" );
 
 		var targets = PackageManifest.Assets.Where( x => !x.Skip ).ToArray();
 		var tasks = new List<Task>();
 
 		foreach ( var t in targets )
 		{
-			QueueCopyFile( targetDir, t, type );
+			if ( t.AbsolutePath is null )
+			{
+				if ( t.Name.EndsWith( ".t.png" ) )
+					continue;
+				if ( t.Name.EndsWith( ".package.base.xml" ) )
+					continue;
+			}
+			else if ( t.AbsolutePath.Replace( '/', '\\' ).StartsWith( addonDir, StringComparison.InvariantCultureIgnoreCase )
+				|| t.AbsolutePath.Replace( '/', '\\' ).StartsWith( oCoreDir, StringComparison.InvariantCultureIgnoreCase ) )
+			{
+				QueueCopyFile( coreDir, t, type );
+				continue;
+			}
+			QueueCopyFile( assetsDir, t, type );
 		}
 	}
 

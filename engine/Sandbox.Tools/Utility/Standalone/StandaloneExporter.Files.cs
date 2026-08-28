@@ -49,7 +49,7 @@ partial class StandaloneExporter
 		"postprocess/ObjectHighlight/objecthighlight.shader_c",
 
 		// Surfaces
-		"surfaces/*.surface_c",
+		//"surfaces/*.surface_c",
 
 		// Common textures
 		"textures/**/*.vtex_c",
@@ -62,10 +62,6 @@ partial class StandaloneExporter
 	}
 
 	private static string[] CoreWhitelist = [
-		// Error particle
-		"particles/error/error.vtex_c",
-		"particles/error_particle.vtex_c",
-		
 		// Shaders
 		"shaders/*.shader_c",
 		
@@ -86,10 +82,11 @@ partial class StandaloneExporter
 		"materials/startup_background.vtex_c",
 
 		// Config files
-		"cfg/*",
-
-		// Sound mixers (required for engine boot?)
-		"scripts/soundmixers.txt",
+		"cfg/configschema.vcfg",
+		"cfg/machine_convars.vcfg",
+		"cfg/quality_profiles.json",
+		"cfg/user_keys_default.vcfg",
+		"cfg/video.txt",
 	];
 
 	private IEnumerable<string> GetCoreFiles( string engineDir )
