@@ -86,8 +86,16 @@ internal static class EngineFileSystem
 		Assert.NotNull( name );
 		Assert.NotNull( Root );
 
-		Root.CreateDirectory( "/config" );
-		Config = Root.CreateSubSystem( "/config" );
+		if ( Application.IsStandalone )
+		{
+			Root.CreateDirectory( "/data" );
+			Config = Root.CreateSubSystem( "/data" );
+		}
+		else
+		{
+			Root.CreateDirectory( "/config" );
+			Config = Root.CreateSubSystem( "/config" );
+		}
 	}
 
 	/// <summary>
